@@ -1,1 +1,1 @@
-jhnj
+if temperature >= 60 and temperture<= 80
