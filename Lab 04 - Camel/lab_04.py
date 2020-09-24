@@ -92,7 +92,7 @@ while not done:
             print("Your desire for a heal increases.")
             print("The raiders continue the chase.")
             print()
-    # Drink from canteen
+    # Heal with Stimpack
     elif userInput.upper() == "A":
         if stimpack > 0:
             stimpack -= 1
@@ -121,7 +121,7 @@ while not done:
         print("You win!")
         print()
         done = True
-    # Camel's tiredness
+    # Brahimm's tiredness
     if brahimmTiredness > 8:
         print("Your Brahimm died of exhaustion!")
         print("With no means of transportation, the raiders catch up to you and crucify you")
@@ -133,7 +133,7 @@ while not done:
     elif brahimmTiredness > 5:
         print("Your Brahimm is tired.")
         print()
-    # Natives distance from you
+    # Raiders distance from you
     if milesTraveled - raidersTraveled <= 0:
         print("The raiders have caught up with you!")
         print("They kill you with laser pistol on the spot, and take back their prized Brahimm.")
