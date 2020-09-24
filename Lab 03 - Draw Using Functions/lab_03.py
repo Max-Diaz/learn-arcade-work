@@ -1,38 +1,74 @@
-"""
-This is a sample program to show how to draw using the Python programming
-language and the Arcade library.
-"""
-
-# Import the "arcade" library
 import arcade
 
-SCREEN_WIDTH = 800
+# --- Set up the constants
+
+# Size of the screen
+SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
+SCREEN_TITLE = "Bouncing Rectangle Example"
+
+# Size of the rectangle
+RECT_WIDTH = 50
+RECT_HEIGHT = 50
+
+
+def on_draw(delta_time):
+    """
+    Use this function to draw everything to the screen.
+    """
+
+    # Start the render. This must happen before any drawing
+    # commands. We do NOT need a stop render command.
+    arcade.start_render()
+
+    # Draw a rectangle.
+    # For a full list of colors see:
+    # http://arcade.academy/arcade.color.html
+    arcade.draw_rectangle_filled(on_draw.center_x, on_draw.center_y,
+                                 RECT_WIDTH, RECT_HEIGHT,
+                                 arcade.color.ALIZARIN_CRIMSON)
+
+    # Modify rectangles position based on the delta
+    # vector. (Delta means change. You can also think
+    # of this as our speed and direction.)
+    on_draw.center_x += on_draw.delta_x * delta_time
+    on_draw.center_y += on_draw.delta_y * delta_time
+
+    # Figure out if we hit the edge and need to reverse.
+    if on_draw.center_x < RECT_WIDTH // 2 \
+            or on_draw.center_x > SCREEN_WIDTH - RECT_WIDTH // 2:
+        on_draw.delta_x *= -1
+    if on_draw.center_y < RECT_HEIGHT // 2 \
+            or on_draw.center_y > SCREEN_HEIGHT - RECT_HEIGHT // 2:
+        on_draw.delta_y *= -1
+
+
+# Below are function-specific variables. Before we use them
+# in our function, we need to give them initial values. Then
+# the values will persist between function calls.
+#
+# In other languages, we'd declare the variables as 'static' inside the
+# function to get that same functionality.
+#
+# Later on, we'll use 'classes' to track position and velocity for multiple
+# objects.
+on_draw.center_x = 100  # type: ignore # dynamic attribute on function obj  # Initial x position
+on_draw.center_y = 50   # type: ignore # dynamic attribute on function obj  # Initial y position
+on_draw.delta_x = 115   # type: ignore # dynamic attribute on function obj  # Initial change in x
+on_draw.delta_y = 130   # type: ignore # dynamic attribute on function obj  # Initial change in y
 
 
 def main():
-    arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Drawing with Functions")
-    arcade.set_background_color(arcade.color.DARK_BLUE)
-    arcade.start_render()
+    # Open up our window
+    arcade.open_window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    arcade.set_background_color(arcade.color.WHITE)
 
-# Ground
-arcade.draw_lrtb_rectangle_filled(0, SCREEN_WIDTH, SCREEN_HEIGHT / 3, 0, arcade.color.AIR_SUPERIORITY_BLUE)
+    # Tell the computer to call the draw command at the specified interval.
+    arcade.schedule(on_draw, 1 / 80)
 
-# Cybertruck
-arcade.draw_rectangle_filled(160, 60, 210, 50, arcade.color.BATTLESHIP_GREY)
-arcade.draw_triangle_filled(20, 35, 100, 35, 50, 90, arcade.color.BATTLESHIP_GREY)
-arcade.draw_triangle_filled(295, 85, 250, 85, 265, 33, arcade.color.BATTLESHIP_GREY)
-arcade.draw_triangle_filled(42, 85, 150, 85, 150, 120, arcade.color.BLIZZARD_BLUE)
-arcade.draw_triangle_filled(150, 85, 150, 120, 300, 85, arcade.color.BLIZZARD_BLUE)
-arcade.draw_circle_filled(80, 40, 30, arcade.csscolor.BLACK)
-arcade.draw_circle_filled(230, 40, 30, arcade.csscolor.BLACK)
-arcade.draw_circle_filled(80, 40, 20, arcade.csscolor.DARK_SLATE_GREY)
-arcade.draw_circle_filled(230, 40, 20, arcade.csscolor.DARK_SLATE_GREY)
-arcade.draw_circle_filled(280, 75, 7, arcade.csscolor.YELLOW)
+    # Run the program
+    arcade.run()
 
 
-
-
-# Finish and run
-arcade.finish_render()
-arcade.run()
+if __name__ == "__main__":
+    main()
