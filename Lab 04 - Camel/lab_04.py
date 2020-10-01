@@ -102,7 +102,7 @@ while not done:
             print("You have run out Stimpacks. And you are unable to heal from now, watch out for Radioscorpions.")
 
     # Status updates
-    # Thirst
+    # Heals
     if heals > 5:
         print("You have been stunged by Radioscorpion and was unable to heal!")
         print("You have succumb to Radioscorpion's venom.")
