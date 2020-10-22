@@ -1,141 +1,387 @@
+"""
+Sprite move between different rooms.
+
+Artwork from http://kenney.nl
+
+If Python and Arcade are installed, this example can be run from the command line with:
+python -m arcade.examples.sprite_rooms
+"""
 
 import arcade
-import random
+import os
 
-# Constants
-SCREEN_HEIGHT = 600
-SCREEN_WIDTH = 800
+SPRITE_SCALING = 0.5
+SPRITE_NATIVE_SIZE = 128
+SPRITE_SIZE = int(SPRITE_NATIVE_SIZE * SPRITE_SCALING)
 
-SPRITE_SCALING = 0.2
+SCREEN_WIDTH = SPRITE_SIZE * 14
+SCREEN_HEIGHT = SPRITE_SIZE * 10
+SCREEN_TITLE = "Vault 76 Maze"
 
-
-# Class for all coin sprites
-class Coin(arcade.Sprite):
-    def __init__(self, filename, sprite_scaling):
-
-        super().__init__(filename, sprite_scaling)
-
-        self.change_x = 0
-        self.change_y = 0
-
-    def update(self):
-        self.center_y -= 1
-
-        if self.top < 0:
-            self.bottom = SCREEN_HEIGHT
+MOVEMENT_SPEED = 10
 
 
-# Class for all fire sprites
-class Fire(arcade.Sprite):
-    def __init__(self, filename, sprite_scaling):
+class Room:
+    """
+    This class holds all the information about the
+    different rooms.
+    """
+    def __init__(self):
+        # You may want many lists. Lists for coins, monsters, etc.
+        self.wall_list = None
 
-        super().__init__(filename, sprite_scaling)
-
-        self.change_x = 0
-        self.change_y = 0
-
-    def update(self):
-        self.center_x -= 1
-
-        if self.right < 0:
-            self.left = SCREEN_WIDTH
+        # This holds the background images. If you don't want changing
+        # background images, you can delete this part.
+        self.background = None
 
 
-class MyApplication(arcade.Window):
-    def __init__(self, width, height):
+def setup_room_1():
+    """
+    Create and return room 1.
+    If your program gets large, you may want to separate this into different
+    files.
+    """
+    room = Room()
 
-        super().__init__(width, height)
+    """ Set up the game and initialize the variables. """
+    # Sprite lists
+    room.wall_list = arcade.SpriteList()
 
-        # Empty variables
-        self.all_sprite_list = None
-        self.good_sprites = None
-        self.bad_sprites = None
+    # -- Set up the walls
+    # Create bottom and top row of boxes
+    # This y loops a list of two, the coordinate 0, and just under the top of window
+    for y in (0, SCREEN_HEIGHT - SPRITE_SIZE):
+        # Loop for each box going across
+        for x in range(0, SCREEN_WIDTH, SPRITE_SIZE):
+            wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+            wall.left = x
+            wall.bottom = y
+            room.wall_list.append(wall)
 
+    # Create left and right column of boxes
+    for x in (0, SCREEN_WIDTH - SPRITE_SIZE):
+        # Loop for each box going across
+        for y in range(SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE, SPRITE_SIZE):
+            # Skip making a block 4 and 5 blocks up on the right side
+            if (y != SPRITE_SIZE * 4 and y != SPRITE_SIZE * 5) or x == 0:
+                wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+                wall.left = x
+                wall.bottom = y
+                room.wall_list.append(wall)
+    # Walls for the interior of the box
+    for y in range(475, 600, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 150
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for x in range(0, 200, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = x
+        wall.center_y = 350
+        room.wall_list.append(wall)
+
+    for y in range(0, 200, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 150
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for y in range(200, 500, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 275
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for y in range(580, 600, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 275
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for y in range(300, 500, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 400
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for x in range(300, 425, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = x
+        wall.center_y = 300
+        room.wall_list.append(wall)
+
+    for y in range(96, 196, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 400
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for y in range(96, 250, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 525
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for y in range(400, 600, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 525
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for x in range(400, 650, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = x
+        wall.center_y = 450
+        room.wall_list.append(wall)
+
+    for y in range(225, 350, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 675
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for x in range(700, 850, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = x
+        wall.center_y = 225
+        room.wall_list.append(wall)
+
+    for y in range(0, 150, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 760
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for y in range(275, 500, 50):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 720
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    # If you want coins or monsters in a level, then add that code here.
+
+    # Load the background image for this level.
+    room.background = arcade.load_texture(":resources:images/backgrounds/abstract_1.jpg")
+
+    return room
+
+
+def setup_room_2():
+    """
+    Create and return room 2.
+    """
+    room = Room()
+
+    """ Set up the game and initialize the variables. """
+    # Sprite lists
+    room.wall_list = arcade.SpriteList()
+
+    # -- Set up the walls
+    # Create bottom and top row of boxes
+    # This y loops a list of two, the coordinate 0, and just under the top of window
+    for y in (0, SCREEN_HEIGHT - SPRITE_SIZE):
+        # Loop for each box going across
+        for x in range(0, SCREEN_WIDTH, SPRITE_SIZE):
+            wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+            wall.left = x
+            wall.bottom = y
+            room.wall_list.append(wall)
+
+    # Create left and right column of boxes
+    for x in (0, SCREEN_WIDTH - SPRITE_SIZE):
+        # Loop for each box going across
+        for y in range(SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE, SPRITE_SIZE):
+            # Skip making a block 4 and 5 blocks up
+            if (y != SPRITE_SIZE * 4 and y != SPRITE_SIZE * 5) or x != 0:
+                wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+                wall.left = x
+                wall.bottom = y
+                room.wall_list.append(wall)
+
+    wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+    wall.left = 5 * SPRITE_SIZE
+    wall.bottom = 6 * SPRITE_SIZE
+    room.wall_list.append(wall)
+    room.background = arcade.load_texture(":resources:images/backgrounds/abstract_2.jpg")
+
+    for y in range(150, 600, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 150
+        wall.center_y = y
+        room.wall_list.append(wall)
+    for y in range(300, 450, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 300
+        wall.center_y = y
+        room.wall_list.append(wall)
+    for y in range(0, 160, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 300
+        wall.center_y = y
+        room.wall_list.append(wall)
+    for y in range(0, 275, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 475
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for x in range(325, 450, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = x
+        wall.center_y = 425
+        room.wall_list.append(wall)
+    for y in range(425, 600, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 425
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for y in range(350, 500, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 600
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    for x in range(600, 850, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = x
+        wall.center_y = 475
+        room.wall_list.append(wall)
+
+    for x in range(600, 850, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = x
+        wall.center_y = 200
+        room.wall_list.append(wall)
+
+    for y in range(200, 350, 64):
+        wall = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", SPRITE_SCALING)
+        wall.center_x = 725
+        wall.center_y = y
+        room.wall_list.append(wall)
+
+    return room
+
+
+class MyGame(arcade.Window):
+    """ Main application class. """
+
+    def __init__(self, width, height, title):
+        """
+        Initializer
+        """
+        super().__init__(width, height, title)
+
+        # Set the working directory (where we expect to find files) to the same
+        # directory this .py file is in. You can leave this out of your own
+        # code, but it is needed to easily run the examples using "python -m"
+        # as mentioned at the top of this program.
+        file_path = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(file_path)
+
+        # Sprite lists
+        self.current_room = 0
+
+        # Set up the player
+        self.rooms = None
         self.player_sprite = None
+        self.player_list = None
+        self.physics_engine = None
 
-        self.score = 0
-
-        self.set_mouse_visible(False)
-        arcade.set_background_color(arcade.color.BURNT_ORANGE)
-
-        self.coin_sound = arcade.load_sound("Bottlecaps.ogg")
-
-    # Setup, includes defined variables, player sprite, and player sprite position
     def setup(self):
-        self.all_sprite_list = arcade.SpriteList()
-        self.good_sprites = arcade.SpriteList()
-        self.bad_sprites = arcade.SpriteList()
-
-        self.score = 0
-        # (Image from Scirra Forums, www.scirra.com)
-        self.player_sprite = arcade.Sprite("../Lab 08 - Sprites/Vault_Boy.png", SPRITE_SCALING)
+        """ Set up the game and initialize the variables. """
+        # Set up the player
+        self.player_sprite = arcade.Sprite(":resources:images/animated_characters/female_person/femalePerson_idle.png", SPRITE_SCALING)
         self.player_sprite.center_x = 100
         self.player_sprite.center_y = 100
+        self.player_list = arcade.SpriteList()
+        self.player_list.append(self.player_sprite)
 
-        self.all_sprite_list.append(self.player_sprite)
+        # Our list of rooms
+        self.rooms = []
 
-        # Draws coins in random locations
-        for coin in range(75):
-            # (Image from Key Word Suggest, keywordsuggest.org)
-            coin = Coin("Nuka_Kola.png", SPRITE_SCALING )
+        # Create the rooms. Extend the pattern for each room.
+        room = setup_room_1()
+        self.rooms.append(room)
 
-            coin.center_x = random.randrange(SCREEN_WIDTH)
-            coin.center_y = random.randrange(SCREEN_HEIGHT)
+        room = setup_room_2()
+        self.rooms.append(room)
 
-            self.all_sprite_list.append(coin)
-            self.good_sprites.append(coin)
+        # Our starting room number
+        self.current_room = 0
 
-        # Draws fire in random locations
-        for fire in range(45):
-            # (Image from Icon Archive, www.iconarchive.com)
-            fire = Fire("Deathclaw.png", SPRITE_SCALING )
+        # Create a physics engine for this room
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.rooms[self.current_room].wall_list)
 
-            fire.center_x = random.randrange(SCREEN_WIDTH)
-            fire.center_y = random.randrange(SCREEN_HEIGHT)
-
-            self.all_sprite_list.append(fire)
-            self.bad_sprites.append(fire)
-
-    # Draws everything
     def on_draw(self):
+        """
+        Render the screen.
+        """
+
+        # This command has to happen before we start drawing
         arcade.start_render()
 
-        self.all_sprite_list.draw()
-        arcade.draw_text("Player Score: " + str(self.score), 10, 20, arcade.color.WHITE, 24)
+        # Draw the background texture
+        arcade.draw_lrwh_rectangle_textured(0, 0,
+                                            SCREEN_WIDTH, SCREEN_HEIGHT,
+                                            self.rooms[self.current_room].background)
 
-        if len(self.good_sprites) == 0:
-            arcade.draw_text("GAME OVER", 230, 280, arcade.color.WHITE, 50)
-            arcade.draw_text("SCORE: " + str(self.score), 240, 230, arcade.color.WHITE, 50)
+        # Draw all the walls in this room
+        self.rooms[self.current_room].wall_list.draw()
 
-    # Animates player sprite and continues animation only if good coins are present
-    def animate(self, delta_time):
-        if len(self.good_sprites) != 0:
-            self.all_sprite_list.update()
+        # If you have coins or monsters, then copy and modify the line
+        # above for each list.
 
-        # Detects Collisions
-        hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.good_sprites)
-        for coin in hit_list:
-            arcade.play_sound(self.coin_sound)
-            coin.kill()
-            self.score += 1
+        self.player_list.draw()
 
-        hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.bad_sprites)
-        for fire in hit_list:
-            fire.kill()
-            self.score -= 1
+    def on_key_press(self, key, modifiers):
+        """Called whenever a key is pressed. """
 
-    # Moves Player
-    def on_mouse_motion(self, x, y, dx, dy):
-        if len(self.good_sprites) != 0:
-            self.player_sprite.center_x = x
-            self.player_sprite.center_y = y
+        if key == arcade.key.UP:
+            self.player_sprite.change_y = MOVEMENT_SPEED
+        elif key == arcade.key.DOWN:
+            self.player_sprite.change_y = -MOVEMENT_SPEED
+        elif key == arcade.key.LEFT:
+            self.player_sprite.change_x = -MOVEMENT_SPEED
+        elif key == arcade.key.RIGHT:
+            self.player_sprite.change_x = MOVEMENT_SPEED
+
+    def on_key_release(self, key, modifiers):
+        """Called when the user releases a key. """
+
+        if key == arcade.key.UP or key == arcade.key.DOWN:
+            self.player_sprite.change_y = 0
+        elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
+            self.player_sprite.change_x = 0
+
+    def on_update(self, delta_time):
+        """ Movement and game logic """
+
+        # Call update on all sprites (The sprites don't do much in this
+        # example though.)
+        self.physics_engine.update()
+
+        # Do some logic here to figure out what room we are in, and if we need to go
+        # to a different room.
+        if self.player_sprite.center_x > SCREEN_WIDTH and self.current_room == 0:
+            self.current_room = 1
+            self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
+                                                             self.rooms[self.current_room].wall_list)
+            self.player_sprite.center_x = 0
+        elif self.player_sprite.center_x < 0 and self.current_room == 1:
+            self.current_room = 0
+            self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
+                                                             self.rooms[self.current_room].wall_list)
+            self.player_sprite.center_x = SCREEN_WIDTH
 
 
-# Main Function
 def main():
-    window = MyApplication(SCREEN_WIDTH, SCREEN_HEIGHT)
+    """ Main method """
+    window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     window.setup()
-
     arcade.run()
 
-main()
+
+if __name__ == "__main__":
+    main()
