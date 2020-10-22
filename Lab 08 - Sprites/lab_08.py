@@ -16,14 +16,14 @@ class Deathclaw(arcade.Sprite):
 
     def reset_pos(self):
 
-        # Reset the coin to a random spot above the screen
+        # Reset the deathclaw to a random spot above the screen
         self.center_y = random.randrange(SCREEN_HEIGHT)
         self.center_x = random.randrange(SCREEN_WIDTH + 10,
                                          SCREEN_WIDTH + 300)
 
     def update(self):
 
-        # Move the coin
+        # Move the deathclaw
         self.center_x -= 1
 
         # See if the coin has fallen off the bottom of the screen.
