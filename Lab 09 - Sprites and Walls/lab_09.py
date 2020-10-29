@@ -11,15 +11,16 @@ import arcade
 import os
 
 SPRITE_SCALING = 0.5
-SPRITE_SCALING_COIN = 0.2
+SPRITE_SCALING_COIN = 0.5
 SPRITE_NATIVE_SIZE = 128
 SPRITE_SIZE = int(SPRITE_NATIVE_SIZE * SPRITE_SCALING)
-NUMBER_OF_COINS = 50
+NUMBER_OF_COINS = 20
 SCREEN_WIDTH = SPRITE_SIZE * 14
 SCREEN_HEIGHT = SPRITE_SIZE * 10
 SCREEN_TITLE = "Vault 76 Maze"
 
-MOVEMENT_SPEED = 10
+MOVEMENT_SPEED = 20
+
 
 class Room:
     """
@@ -291,6 +292,7 @@ class MyGame(arcade.Window):
         self.player_sprite = None
         self.player_list = None
         self.physics_engine = None
+        self.coin_sound = arcade.load_sound("coin.ogg")
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -324,31 +326,13 @@ class MyGame(arcade.Window):
 
         # If you want coins or monsters in a level, then add that code here.
         for i in range(NUMBER_OF_COINS):
-
-            # Create the coin instance
-            # Coin image from kenney.nl
+            # Create the Nuka Cola instance
+            # Nuka Cola image fromh https://www.cleanpng.com/free/nuka-cola.html
             coin = arcade.Sprite("pearl.png", SPRITE_SCALING_COIN)
 
-            # --- IMPORTANT PART ---
-
-            # Boolean variable if we successfully placed the coin
-            coin_placed_successfully = False
-
-            # Keep trying until success
-            while not coin_placed_successfully:
-                # Position the coin
-                coin.center_x = random.randrange(SCREEN_WIDTH)
-                coin.center_y = random.randrange(SCREEN_HEIGHT)
-
-                # See if the coin is hitting a wall
-                wall_hit_list = arcade.check_for_collision_with_list(coin, self.wall_list)
-
-                # See if the coin is hitting another coin
-                coin_hit_list = arcade.check_for_collision_with_list(coin, self.coin_list)
-
-                if len(wall_hit_list) == 0 and len(coin_hit_list) == 0:
-                    # It is!
-                    coin_placed_successfully = True
+            # Position the coin
+            coin.center_x = random.randrange(SCREEN_WIDTH)
+            coin.center_y = random.randrange(SCREEN_HEIGHT)
 
             # Add the coin to the lists
             self.coin_list.append(coin)
@@ -373,6 +357,12 @@ class MyGame(arcade.Window):
         # above for each list.
 
         self.player_list.draw()
+        self.coin_list.draw()
+
+
+        output = f"Score: {self.score}"
+        arcade.draw_text(output, 10, 20, arcade.color.BLACK, 14)
+
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -400,7 +390,7 @@ class MyGame(arcade.Window):
         # Call update on all sprites (The sprites don't do much in this
         # example though.)
         self.physics_engine.update()
-
+        self.coin_list.update()
         # Do some logic here to figure out what room we are in, and if we need to go
         # to a different room.
         if self.player_sprite.center_x > SCREEN_WIDTH and self.current_room == 0:
@@ -413,6 +403,13 @@ class MyGame(arcade.Window):
             self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
                                                              self.rooms[self.current_room].wall_list)
             self.player_sprite.center_x = SCREEN_WIDTH
+
+        hit_list = arcade.check_for_collision_with_list(self.player_sprite,
+                                                            self.coin_list)
+
+        for arcade.Sprite in hit_list:
+            arcade.play_sound(self.coin_sound)
+            self.score += 1
 
 
 def main():

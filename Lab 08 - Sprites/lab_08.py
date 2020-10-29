@@ -41,9 +41,9 @@ class Coin(arcade.Sprite):
     def reset_pos(self):
 
         # Reset the coin to a random spot above the screen
-        self.center_y = random.randrange(SCREEN_HEIGHT + 20,
+        self.center_y = random.randrange(SCREEN_HEIGHT,
                                          SCREEN_HEIGHT + 100)
-        self.center_x = random.randrange(SCREEN_WIDTH)
+        self.center_x = random.randrange(SCREEN_WIDTH + 100)
 
     def update(self):
 
