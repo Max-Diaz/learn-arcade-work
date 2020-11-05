@@ -6,9 +6,9 @@ import arcade
 # --- Constants ---
 SPRITE_SCALING_PLAYER = 0.1
 SPRITE_SCALING_COIN = 0.2
-COIN_COUNT = 50
-DEATHCLAW_COUNT = 20
-SPRITE_SCALING_DEATHCLAW = 0.4
+COIN_COUNT = 30
+DEATHCLAW_COUNT = 8
+SPRITE_SCALING_DEATHCLAW = 0.3
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
@@ -65,6 +65,7 @@ class MyGame(arcade.Window):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Sprite Example")
 
         # Variables that will hold sprite lists
+        self.all_sprite_list = None
         self.player_list = None
         self.coin_list = None
         self.deathclaw = None
@@ -80,13 +81,17 @@ class MyGame(arcade.Window):
 
         #play sounds
         #https://www.youtube.com/watch?v=2GIP80fM2Bo
+
         #https://www.youtube.com/watch?v=XH_ILMre9h8
+
         self.bottlecaps_sound = arcade.load_sound("Bottlecaps.ogg.")
         self.roar_sound = arcade.load_sound("roar.ogg")
+
     def setup(self):
         """ Set up the game and initialize the variables. """
 
         # Sprite lists
+        self.all_sprite_list = arcade.SpriteList()
         self.player_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
         self.deathclaw_list = arcade.SpriteList()
@@ -135,8 +140,12 @@ class MyGame(arcade.Window):
         self.deathclaw_list.draw()
 
         # Put the text on the screen.
-        output = f"Score: {self.score}"
-        arcade.draw_text(output, 10, 20, arcade.color.WHITE, 14)
+        self.all_sprite_list.draw()
+        arcade.draw_text("Player Score: " + str(self.score), 10, 20, arcade.color.WHITE, 24)
+
+        if len(self.coin_list) == 0:
+            arcade.draw_text("GAME OVER", 230, 280, arcade.color.WHITE, 50)
+            arcade.draw_text("Score: " + str(self.score), 240, 230, arcade.color.WHITE, 50)
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
@@ -159,16 +168,20 @@ class MyGame(arcade.Window):
 
         # Loop through each colliding sprite, remove it, and add to the score.
         for coin in hit_list:
+            coin.remove_from_sprite_lists()
             arcade.play_sound(self.bottlecaps_sound)
-            coin.reset_pos()
             self.score += 1
 
         hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.deathclaw_list)
         for deathclaw in hit_list:
+            deathclaw.remove_from_sprite_lists()
             arcade.play_sound(self.roar_sound)
-            deathclaw.reset_pos()
             self.score -= 5
 
+    def on_mouse_motion(self, x, y, dx, dy):
+        if len(self.coin_list) != 0:
+            self.player_sprite.center_x = x
+            self.player_sprite.center_y = y
 
 def main():
     """ Main method """
@@ -179,4 +192,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

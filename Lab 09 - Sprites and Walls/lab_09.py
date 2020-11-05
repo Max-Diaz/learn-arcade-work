@@ -1,8 +1,5 @@
 """
 Sprite move between different rooms.
-
-Artwork from http://kenney.nl
-
 If Python and Arcade are installed, this example can be run from the command line with:
 python -m arcade.examples.sprite_rooms
 """
@@ -17,9 +14,9 @@ SPRITE_SIZE = int(SPRITE_NATIVE_SIZE * SPRITE_SCALING)
 NUMBER_OF_COINS = 20
 SCREEN_WIDTH = SPRITE_SIZE * 14
 SCREEN_HEIGHT = SPRITE_SIZE * 10
-SCREEN_TITLE = "Vault 76 Maze"
+SCREEN_TITLE = "Robot Maze"
 
-MOVEMENT_SPEED = 20
+MOVEMENT_SPEED = 5
 
 
 class Room:
@@ -46,6 +43,7 @@ def setup_room_1():
 
     """ Set up the game and initialize the variables. """
     # Sprite lists
+    room.coin_list = arcade.SpriteList()
     room.wall_list = arcade.SpriteList()
 
     # -- Set up the walls
@@ -163,6 +161,38 @@ def setup_room_1():
     # Load the background image for this level.
     room.background = arcade.load_texture("city2.jpg")
 
+    # If you want coins or monsters in a level, then add that code here.
+    for i in range(NUMBER_OF_COINS):
+        # Create the Nuka Cola instance
+        #
+        coin = arcade.Sprite("pearl.png", SPRITE_SCALING_COIN)
+
+        # --- IMPORTANT PART ---
+
+        # Boolean variable if we successfully placed the coin
+        coin_placed_successfully = False
+
+        # Keep trying until success
+        while not coin_placed_successfully:
+            # Position the coin
+            coin.center_x = random.randrange(SCREEN_WIDTH)
+            coin.center_y = random.randrange(SCREEN_HEIGHT)
+
+            # See if the coin is hitting a wall
+            wall_hit_list = arcade.check_for_collision_with_list(coin, room.wall_list)
+
+            # See if the coin is hitting another coin
+            coin_hit_list = arcade.check_for_collision_with_list(coin, room.coin_list)
+
+            if len(wall_hit_list) == 0 and len(coin_hit_list) == 0:
+                # It is!
+                coin_placed_successfully = True
+
+        # Add the coin to the lists
+        room.coin_list.append(coin)
+
+        # --- END OF IMPORTANT PART ---
+
     return room
 
 
@@ -175,14 +205,14 @@ def setup_room_2():
     """ Set up the game and initialize the variables. """
     # Sprite lists
     room.wall_list = arcade.SpriteList()
-
+    room.coin_list = arcade.SpriteList()
     # -- Set up the walls
     # Create bottom and top row of boxes
     # This y loops a list of two, the coordinate 0, and just under the top of window
     for y in (0, SCREEN_HEIGHT - SPRITE_SIZE):
         # Loop for each box going across
         for x in range(0, SCREEN_WIDTH, SPRITE_SIZE):
-            wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+            wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
             wall.left = x
             wall.bottom = y
             room.wall_list.append(wall)
@@ -193,72 +223,103 @@ def setup_room_2():
         for y in range(SPRITE_SIZE, SCREEN_HEIGHT - SPRITE_SIZE, SPRITE_SIZE):
             # Skip making a block 4 and 5 blocks up
             if (y != SPRITE_SIZE * 4 and y != SPRITE_SIZE * 5) or x != 0:
-                wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+                wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
                 wall.left = x
                 wall.bottom = y
                 room.wall_list.append(wall)
 
-    wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+    wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
     wall.left = 5 * SPRITE_SIZE
     wall.bottom = 6 * SPRITE_SIZE
     room.wall_list.append(wall)
     room.background = arcade.load_texture("city.jpg")
 
     for y in range(150, 600, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = 150
         wall.center_y = y
         room.wall_list.append(wall)
     for y in range(300, 450, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = 300
         wall.center_y = y
         room.wall_list.append(wall)
     for y in range(0, 160, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = 300
         wall.center_y = y
         room.wall_list.append(wall)
     for y in range(0, 275, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = 475
         wall.center_y = y
         room.wall_list.append(wall)
 
     for x in range(325, 450, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = x
         wall.center_y = 425
         room.wall_list.append(wall)
     for y in range(425, 600, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = 425
         wall.center_y = y
         room.wall_list.append(wall)
 
     for y in range(350, 500, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = 600
         wall.center_y = y
         room.wall_list.append(wall)
 
     for x in range(600, 850, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = x
         wall.center_y = 475
         room.wall_list.append(wall)
 
     for x in range(600, 850, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = x
         wall.center_y = 200
         room.wall_list.append(wall)
 
     for y in range(200, 350, 64):
-        wall = arcade.Sprite("Iron_Block.png", SPRITE_SCALING)
+        wall = arcade.Sprite("diamond.png", SPRITE_SCALING)
         wall.center_x = 725
         wall.center_y = y
         room.wall_list.append(wall)
+
+        for i in range(NUMBER_OF_COINS):
+            # Create the Nuka Cola instance
+            #
+            coin = arcade.Sprite("pearl.png", SPRITE_SCALING_COIN)
+
+            # --- IMPORTANT PART ---
+
+            # Boolean variable if we successfully placed the coin
+            coin_placed_successfully = False
+
+            # Keep trying until success
+            while not coin_placed_successfully:
+                # Position the coin
+                coin.center_x = random.randrange(SCREEN_WIDTH)
+                coin.center_y = random.randrange(SCREEN_HEIGHT)
+
+                # See if the coin is hitting a wall
+                wall_hit_list = arcade.check_for_collision_with_list(coin, room.wall_list)
+
+                # See if the coin is hitting another coin
+                coin_hit_list = arcade.check_for_collision_with_list(coin, room.coin_list)
+
+                if len(wall_hit_list) == 0 and len(coin_hit_list) == 0:
+                    # It is!
+                    coin_placed_successfully = True
+
+            # Add the coin to the lists
+            room.coin_list.append(coin)
+
+            # --- END OF IMPORTANT PART ---
 
     return room
 
@@ -324,19 +385,6 @@ class MyGame(arcade.Window):
         # Create a physics engine for this room
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.rooms[self.current_room].wall_list)
 
-        # If you want coins or monsters in a level, then add that code here.
-        for i in range(NUMBER_OF_COINS):
-            # Create the Nuka Cola instance
-            # Nuka Cola image fromh https://www.cleanpng.com/free/nuka-cola.html
-            coin = arcade.Sprite("pearl.png", SPRITE_SCALING_COIN)
-
-            # Position the coin
-            coin.center_x = random.randrange(SCREEN_WIDTH)
-            coin.center_y = random.randrange(SCREEN_HEIGHT)
-
-            # Add the coin to the lists
-            self.coin_list.append(coin)
-
     def on_draw(self):
         """
         Render the screen.
@@ -357,12 +405,9 @@ class MyGame(arcade.Window):
         # above for each list.
 
         self.player_list.draw()
-        self.coin_list.draw()
-
-
+        self.rooms[self.current_room].coin_list.draw()
         output = f"Score: {self.score}"
         arcade.draw_text(output, 10, 20, arcade.color.BLACK, 14)
-
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -404,10 +449,10 @@ class MyGame(arcade.Window):
                                                              self.rooms[self.current_room].wall_list)
             self.player_sprite.center_x = SCREEN_WIDTH
 
-        hit_list = arcade.check_for_collision_with_list(self.player_sprite,
-                                                            self.coin_list)
+        hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.rooms[self.current_room].coin_list)
 
-        for arcade.Sprite in hit_list:
+        for hit in hit_list:
+            hit.remove_from_sprite_lists()
             arcade.play_sound(self.coin_sound)
             self.score += 1
 

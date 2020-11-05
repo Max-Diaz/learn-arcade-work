@@ -1,28 +1,194 @@
-import re
+""" Sprite Sample Program """
 
-def split_line(line):
-    return re.findall('[A-Za-z]+(?:\'[A-Za-z]+)?',line)
+import random
+import arcade
 
-def main ():
-    """ Read in lines from a file """
+# --- Constants ---
+SPRITE_SCALING_PLAYER = 0.1
+SPRITE_SCALING_COIN = 0.2
+COIN_COUNT = 30
+DEATHCLAW_COUNT = 10
+SPRITE_SCALING_DEATHCLAW = 0.4
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
-    # Open the file for reading, and store a pointer to it in the new
-    # variable "file"
-    my_file = open("dictionary.txt")
+class Deathclaw(arcade.Sprite):
 
-    name_list = []
+    def reset_pos(self):
 
-    # Loop through each line in the file like a list
-    for line in my_file:
-        # Remove any line feed, carriage returns or spaces at the end of the line
-        line = line.strip()
+        # Reset the deathclaw to a random spot above the screen
+        self.center_y = random.randrange(SCREEN_HEIGHT)
+        self.center_x = random.randrange(SCREEN_WIDTH + 10,
+                                         SCREEN_WIDTH + 300)
 
-        # Add the name to the list
-        name_list.append(line)
+    def update(self):
 
-    my_file.close()
+        # Move the deathclaw
+        self.center_x -= 1
+
+        # See if the coin has fallen off the bottom of the screen.
+        # If so, reset it.
+        if self.right< 0:
+            self.reset_pos()
 
 
-print("There were", len(name_list), "names in the file.")
+class Coin(arcade.Sprite):
+    """
+    This class represents the coins on our screen. It is a child class of
+    the arcade library's "Sprite" class.
+    """
 
-main()
+    def reset_pos(self):
+
+        # Reset the coin to a random spot above the screen
+        self.center_y = random.randrange(SCREEN_HEIGHT,
+                                         SCREEN_HEIGHT + 100)
+        self.center_x = random.randrange(SCREEN_WIDTH + 100)
+
+    def update(self):
+
+        # Move the coin
+        self.center_y -= 1
+
+        # See if the coin has fallen off the bottom of the screen.
+        # If so, reset it.
+        if self.top < 0:
+            self.reset_pos()
+
+
+class MyGame(arcade.Window):
+    """ Our custom Window Class"""
+
+    def __init__(self):
+        """ Initializer """
+        # Call the parent class initializer
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Sprite Example")
+
+        # Variables that will hold sprite lists
+        self.all_sprite_list = None
+        self.player_list = None
+        self.coin_list = None
+        self.deathclaw = None
+
+        # Set up the player info
+        self.player_sprite = None
+        self.score = 0
+
+        # Don't show the mouse cursor
+        self.set_mouse_visible(False)
+
+        arcade.set_background_color(arcade.color. GRAY)
+
+        #play sounds
+        #https://www.youtube.com/watch?v=2GIP80fM2Bo
+
+        #https://www.youtube.com/watch?v=XH_ILMre9h8
+
+        self.bottlecaps_sound = arcade.load_sound("Bottlecaps.ogg.")
+        self.roar_sound = arcade.load_sound("../Lab 08 - Sprites/roar.ogg")
+
+    def setup(self):
+        """ Set up the game and initialize the variables. """
+
+        # Sprite lists
+        self.all_sprite_list = arcade.SpriteList()
+        self.player_list = arcade.SpriteList()
+        self.coin_list = arcade.SpriteList()
+        self.deathclaw_list = arcade.SpriteList()
+        # Score
+        self.score = 0
+
+        # Set up the player
+        # Character image from https://www.pngkit.com/
+        self.player_sprite = arcade.Sprite("Vault_Boy.png", SPRITE_SCALING_PLAYER)
+        self.player_sprite.center_x = 50
+        self.player_sprite.center_y = 50
+        self.player_list.append(self.player_sprite)
+
+        # Create the ENEMY
+        for i in range(DEATHCLAW_COUNT):
+
+            # Create the ENEMY instance
+            # ENEMY image from https://fallout.fandom.com/
+            deathclaw = Deathclaw("Deathclaw.png", SPRITE_SCALING_DEATHCLAW)
+
+            # Position the coin
+            deathclaw.center_x = random.randrange(SCREEN_WIDTH)
+            deathclaw.center_y = random.randrange(SCREEN_HEIGHT)
+
+            # Add the coin to the lists
+            self.deathclaw_list.append(deathclaw)
+
+        for i in range(COIN_COUNT):
+
+            # Create the Nuka Cola instance
+            # Nuka Cola image fromh https://www.cleanpng.com/free/nuka-cola.html
+            coin = Coin("Nuka_Kola.png", SPRITE_SCALING_COIN)
+
+            # Position the coin
+            coin.center_x = random.randrange(SCREEN_WIDTH)
+            coin.center_y = random.randrange(SCREEN_HEIGHT)
+
+            # Add the coin to the lists
+            self.coin_list.append(coin)
+
+    def on_draw(self):
+        """ Draw everything """
+        arcade.start_render()
+        self.coin_list.draw()
+        self.player_list.draw()
+        self.deathclaw_list.draw()
+
+        # Put the text on the screen.
+        self.all_sprite_list.draw()
+        arcade.draw_text("Player Score: " + str(self.score), 10, 20, arcade.color.WHITE, 24)
+
+        if len(self.coin_list) == 0:
+            arcade.draw_text("GAME OVER", 230, 280, arcade.color.WHITE, 50)
+            arcade.draw_text("Score: " + str(self.score), 240, 230, arcade.color.WHITE, 50)
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        """ Handle Mouse Motion """
+
+        # Move the center of the player sprite to match the mouse x, y
+        self.player_sprite.center_x = x
+        self.player_sprite.center_y = y
+
+    def update(self, delta_time):
+        """ Movement and game logic """
+
+        # Call update on all sprites (The sprites don't do much in this
+        # example though.)
+        self.coin_list.update()
+        self.deathclaw_list.update()
+
+        # Generate a list of all sprites that collided with the player.
+        hit_list = arcade.check_for_collision_with_list(self.player_sprite,
+                                                        self.coin_list)
+
+        # Loop through each colliding sprite, remove it, and add to the score.
+        for coin in hit_list:
+            coin.remove_from_sprite_lists()
+            arcade.play_sound(self.bottlecaps_sound)
+            self.score += 1
+
+        hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.deathclaw_list)
+        for deathclaw in hit_list:
+            deathclaw.remove_from_sprite_lists()
+            arcade.play_sound(self.roar_sound)
+            self.score -= 5
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        if len(self.coin_list) != 0:
+            self.player_sprite.center_x = x
+            self.player_sprite.center_y = y
+
+def main():
+    """ Main method """
+    window = MyGame()
+    window.setup()
+    arcade.run()
+
+
+if __name__ == "__main__":
+    main()
