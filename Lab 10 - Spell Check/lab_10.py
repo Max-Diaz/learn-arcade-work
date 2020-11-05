@@ -34,7 +34,39 @@ def main():
                 current_list_position += 1
 
             if current_list_position == len(dictionary_list):
-                print("This word was not found: " + word)
+                print("line " + str(line_number) +" Possible Misspelled word: " + word)
+    alice_file.close()
+
+    print("--- Binary Search ---")
+
+    alice_file = open("AliceInWonderLand200.txt")
+    line_number = 0
+    for line in alice_file:
+        line_number += 1
+        word_list = split_line(line)
+        for word in word_list:
+            lower_bound = 0
+            upper_bound = len(dictionary_list) - 1
+            found = False
+
+            # Loop until we find the item, or our upper/lower bounds meet
+            while lower_bound <= upper_bound and not found:
+
+                # Find the middle position
+                middle_pos = (lower_bound + upper_bound) // 2
+
+                # Figure out if we:
+                # move up the lower bound, or
+                # move down the upper bound, or
+                # we found what we are looking for
+                if dictionary_list[middle_pos] < word.upper():
+                    lower_bound = middle_pos + 1
+                elif dictionary_list[middle_pos] > word.upper():
+                    upper_bound = middle_pos - 1
+                else:
+                    found = True
+            if not found:
+                print("line " + str(line_number) + " Possible Misspelled word: " + word)
     alice_file.close()
 
 
